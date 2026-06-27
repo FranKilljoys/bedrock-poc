@@ -1,0 +1,6 @@
+﻿services:
+  bedrock.poc:
+    image: bedrock.poc
+    build:
+      context: .
+      dockerfile: BedRock.POC/Dockerfile

@@ -1,0 +1,151 @@
+# Bedrock POC — HTTP Test Requests
+# Run the app first: dotnet run --launch-profile http
+# Scalar API reference: http://localhost:5015/scalar/v1
+
+@host = http://localhost:5015
+@hostHttps = https://localhost:7271
+
+### ─────────────────────────────────────────────────────────────
+### 1. Extract document using Claude 3 Sonnet (default keys)
+###    Sends a PDF, lets the API use the configured DefaultKeys.
+### ─────────────────────────────────────────────────────────────
+POST {{host}}/documents/Claude35Sonnet
+Content-Type: multipart/form-data; boundary=----boundary
+
+------boundary
+Content-Disposition: form-data; name="File"; filename="sample.pdf"
+Content-Type: application/pdf
+
+< ./sample.pdf
+------boundary--
+
+###
+
+### ─────────────────────────────────────────────────────────────
+### 2. Extract document using Claude 3 Sonnet (custom keys)
+###    Overrides DefaultKeys with a focused subset.
+### ─────────────────────────────────────────────────────────────
+POST {{host}}/documents/Claude35Sonnet
+Content-Type: multipart/form-data; boundary=----boundary
+
+------boundary
+Content-Disposition: form-data; name="File"; filename="sample.pdf"
+Content-Type: application/pdf
+
+< ./sample.pdf
+------boundary
+Content-Disposition: form-data; name="Keys[0]"
+
+First Party
+------boundary
+Content-Disposition: form-data; name="Keys[1]"
+
+Second Party
+------boundary
+Content-Disposition: form-data; name="Keys[2]"
+
+Filing Date
+------boundary
+Content-Disposition: form-data; name="Keys[3]"
+
+Parcel ID
+------boundary--
+
+###
+
+### ─────────────────────────────────────────────────────────────
+### 3. Extract document using Cohere Command Light (default keys)
+### ─────────────────────────────────────────────────────────────
+POST {{host}}/documents/CommandLight
+Content-Type: multipart/form-data; boundary=----boundary
+
+------boundary
+Content-Disposition: form-data; name="File"; filename="sample.pdf"
+Content-Type: application/pdf
+
+< ./sample.pdf
+------boundary--
+
+###
+
+### ─────────────────────────────────────────────────────────────
+### 4. Extract with a custom prompt template
+###    {keyList} is replaced by the API with the formatted keys.
+### ─────────────────────────────────────────────────────────────
+POST {{host}}/documents/Claude35Sonnet
+Content-Type: multipart/form-data; boundary=----boundary
+
+------boundary
+Content-Disposition: form-data; name="File"; filename="sample.pdf"
+Content-Type: application/pdf
+
+< ./sample.pdf
+------boundary
+Content-Disposition: form-data; name="Prompt"
+
+<System>
+You are a legal document analyst. Extract each <element> from <information> found in the <document>.
+Return a JSON array where each object has: key, value, startPosition, score.
+If a field is not found set startPosition to -1.
+<information>{keyList}</information>
+Output must be valid JSON only, no explanation.
+</System>
+------boundary
+Content-Disposition: form-data; name="Keys[0]"
+
+Case Number
+------boundary
+Content-Disposition: form-data; name="Keys[1]"
+
+Property Address
+------boundary
+Content-Disposition: form-data; name="Keys[2]"
+
+Grantor
+------boundary
+Content-Disposition: form-data; name="Keys[3]"
+
+Grantee
+------boundary--
+
+###
+
+### ─────────────────────────────────────────────────────────────
+### 5. Validation error — missing file (expect 400)
+### ─────────────────────────────────────────────────────────────
+POST {{host}}/documents/Claude35Sonnet
+Content-Type: multipart/form-data; boundary=----boundary
+
+------boundary--
+
+###
+
+### ─────────────────────────────────────────────────────────────
+### 6. Validation error — unknown model enum value (expect 400)
+### ─────────────────────────────────────────────────────────────
+POST {{host}}/documents/UnknownModel
+Content-Type: multipart/form-data; boundary=----boundary
+
+------boundary
+Content-Disposition: form-data; name="File"; filename="sample.pdf"
+Content-Type: application/pdf
+
+< ./sample.pdf
+------boundary--
+
+###
+
+### ─────────────────────────────────────────────────────────────
+### 7. HTTPS variant — same as #1 but via the HTTPS profile
+### ─────────────────────────────────────────────────────────────
+POST {{hostHttps}}/documents/Claude35Sonnet
+Content-Type: multipart/form-data; boundary=----boundary
+
+------boundary
+Content-Disposition: form-data; name="File"; filename="sample.pdf"
+Content-Type: application/pdf
+
+< ./sample.pdf
+------boundary--
+
+###

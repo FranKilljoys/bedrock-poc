@@ -1,0 +1,32 @@
+**/.git
+**/.gitignore
+**/.DS_Store
+
+# Build output
+**/bin/
+**/obj/
+
+# Test project
+BedRock.POC.Tests/
+
+# Coverage results
+coverage/
+
+# IDE
+**/.vs/
+**/.vscode/
+**/.idea/
+**/*.user
+
+# Secrets — never in image
+**/appsettings.Development.json
+**/appsettings.Staging.json
+**/appsettings.Production.json
+**/.env
+**/.env.*
+**/secrets.json
+
+# Docs
+README.md
+CONTRIBUTING.md
+LICENSE
